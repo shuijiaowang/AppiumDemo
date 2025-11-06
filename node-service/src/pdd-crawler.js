@@ -22,17 +22,21 @@ async function getPddHomepage() {
     });
 
     try {
-        // 2. 等待 App 加载完成（最多等 10 秒）
-        await driver.pause(10000);  // 简单粗暴的等待，实际可以等某个元素出现
+        console.log("等待首页加载...");
 
-        // 3. 获取当前页面的 XML 结构（相当于 App 的“HTML”）
-        const pageSource = await driver.getPageSource();
-        console.log("拼多多首页 XML 内容：\n", pageSource);
+        // 使用 XPath 定位 content-desc 为"搜索"的 TextView
+        const searchInput = await driver.$('//android.widget.TextView[@content-desc="搜索"]');
 
-        // 4. 保存到文件（方便查看）
-        const fs = require('fs');
-        fs.writeFileSync('pdd_home.xml', pageSource, 'utf-8');
-        console.log("已保存到 pdd_home.xml 文件");
+        // 等待元素出现（最长15秒）
+        await searchInput.waitForDisplayed({ timeout: 15000 });
+        console.log("已定位到搜索框");
+
+        // 点击搜索框
+        console.log("点击搜索框...");
+        await searchInput.click();
+
+        // （可选）点击后可以继续输入内容或其他操作
+        await driver.pause(2000); // 点击后等待2秒，观察效果
 
     } catch (err) {
         console.error("出错了：", err);
